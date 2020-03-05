@@ -1,16 +1,84 @@
+const err_msg = {
+  EXPIRED: '服务器没有您的记录，您重新登录吧',
+  EXISTING_NAME: '服务器这边重名了，您改个名字吧'
+};
+
+const isLogged = () => {
+  let nickname = localStorage.nickname;
+  return nickname !== undefined && nickname !== null;
+}
+
+const localLogin = (nickname) => {
+  localStorage.setItem('nickname', nickname);
+  $('#submit').text('说')
+}
+
+const localLogout = () => {
+  localStorage.removeItem('nickname');
+  $('#submit').text('加入')
+}
+
 $(document).ready(function(){
   var socket = io.connect();
 
-  socket.on('join', (msg) => {
-    $('#user-list').empty();
-    for (let k in msg){
-      $('#user-list').append(`<li class="list-group-item">${msg[k]}</li>`)
+  socket.on('welcome', ({error, users, name:nickname}) => {
+    console.log(error, users, 'welcome')
+    if (error !== undefined){
+
+      // 发生任何登陆问题时，先在本地登出
+      localLogout();
+      alert(err_msg[error]);
+    } else {
+
+      // 收到欢迎信息后才在本地登入。当然如果是relogin的话
+      // 意味着localStorage会再写一次nickname，但是没有关系。
+      $('#user-list').empty();
+      for (let k of users){
+        $('#user-list').append(`<li class="list-group-item">${k}</li>`)
+      }
+      localLogin(nickname);
     }
-    // console.log(msg);
   });
 
-  $('#submit').click((e) => {
-    socket.emit('join', {name: $('#input').val()});
+  socket.on('heard', ({name, message}) => {
+    $('#content').append(`<div class="message"><span class="name">${name}: </span><span class="content">${message}</span></div>`)
   });
 
+  const login = (nickname) => {
+
+    if (nickname.length === 0){
+      alert('抱歉，您的昵称不能为空啊')
+    } else {
+      socket.emit('join', {name: nickname});
+    }
+  }
+
+  const logout = () => {
+    socket.emit('leave', {name: localStorage.nickname});
+  }
+
+  const say = (word) => {
+    if (word.length === 0){
+      alert('抱歉，发言也不能为空啊')
+    } else {
+      socket.emit('say', {name: localStorage.nickname, message: word});
+    }
+  }
+
+  const submit = (e) => {
+    if (isLogged()){
+      say($('#input').val());
+    } else {
+      login($('#input').val());
+    }
+    $('#input').val('');
+  }
+
+  $('#submit').click(submit);
+
+  // console.log(localStorage.nickname)
+  if (isLogged()){
+    console.log('islogged')
+    socket.emit('rejoin', {name: localStorage.nickname})
+  }
 });
