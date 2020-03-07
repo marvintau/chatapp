@@ -19,10 +19,22 @@ const localLogout = () => {
 }
 
 $(document).ready(function(){
-  var socket = io.connect();
-
-  socket.on('welcome', ({error, users, name:nickname}) => {
-    console.log(error, users, 'welcome')
+  var socket = io(`${window.location.host}`)
+  .on('connect', () => {
+    console.log(socket.id, 'connected');
+  })
+  .on('connect_error', () => {
+    console.error('连接错误，没有连到服务器');
+  })
+  .on('welcome', ({users}) => {
+    console.log('other people logged in')
+    $('#user-list').empty();
+    for (let k of users){
+      $('#user-list').append(`<li class="list-group-item">${k}</li>`)
+    }
+  })
+  .on('logged', ({error, users, name:nickname}) => {
+    console.log('logged in')
     if (error !== undefined){
 
       // 发生任何登陆问题时，先在本地登出
@@ -30,19 +42,21 @@ $(document).ready(function(){
       alert(err_msg[error]);
     } else {
 
-      // 收到欢迎信息后才在本地登入。当然如果是relogin的话
-      // 意味着localStorage会再写一次nickname，但是没有关系。
       $('#user-list').empty();
       for (let k of users){
         $('#user-list').append(`<li class="list-group-item">${k}</li>`)
-      }
+      }  
+
+      // 收到欢迎信息后才在本地登入。当然如果是relogin的话
+      // 意味着localStorage会再写一次nickname，但是没有关系。
       localLogin(nickname);
     }
-  });
-
-  socket.on('heard', ({name, message}) => {
+  })
+  .on('heard', ({name, message}) => {
+    console.log('message received')
     $('#content').append(`<div class="message"><span class="name">${name}: </span><span class="content">${message}</span></div>`)
-  });
+  })
+  // .on('');
 
   const login = (nickname) => {
 
@@ -51,10 +65,6 @@ $(document).ready(function(){
     } else {
       socket.emit('join', {name: nickname});
     }
-  }
-
-  const logout = () => {
-    socket.emit('leave', {name: localStorage.nickname});
   }
 
   const say = (word) => {
@@ -81,4 +91,6 @@ $(document).ready(function(){
     console.log('islogged')
     socket.emit('rejoin', {name: localStorage.nickname})
   }
+  
+  console.log('loaded')
 });
