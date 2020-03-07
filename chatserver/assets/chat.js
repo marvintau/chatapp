@@ -24,6 +24,7 @@ $(document).ready(function(){
     console.log(socket.id, 'connected');
   })
   .on('connect_error', () => {
+    console.log(window.location.host);
     console.error('连接错误，没有连到服务器');
   })
   .on('welcome', ({users}) => {
