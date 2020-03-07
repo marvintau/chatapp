@@ -7,6 +7,7 @@ SECRET_KEY = '3ctkuns=obqwkcafs^vhl6iwn1#x01#s__&2gu*apr7b08(3=9'
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    'localhost',
     '120.77.243.97'
 ]
 
@@ -47,3 +48,5 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "assets")
 ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static') 
