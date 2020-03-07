@@ -6,7 +6,9 @@ print(BASE_DIR)
 SECRET_KEY = '3ctkuns=obqwkcafs^vhl6iwn1#x01#s__&2gu*apr7b08(3=9'
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '120.77.243.97'
+]
 
 INSTALLED_APPS = [
     'django.contrib.staticfiles',
