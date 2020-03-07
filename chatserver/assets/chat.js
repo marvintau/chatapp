@@ -19,7 +19,9 @@ const localLogout = () => {
 }
 
 $(document).ready(function(){
-  var socket = io(`${window.location.host}`)
+  var socket = io(`${window.location.host}`, {
+    transports: [ 'websocket' ]
+  })
   .on('connect', () => {
     console.log(socket.id, 'connected');
   })
