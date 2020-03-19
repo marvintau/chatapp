@@ -13,6 +13,12 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'django.contrib.staticfiles',
+    'rest_framework',
+    'corsheaders'
+]
+
+MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'chatserver.urls'
@@ -46,7 +52,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "assets")
+    os.path.join(BASE_DIR, "../client", 'build')
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static') 
